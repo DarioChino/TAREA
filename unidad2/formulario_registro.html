@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Registro</title>
+    <link rel="stylesheet" href="./css/estilos_form.css">
+</head>
+<body>
+
+    <div style="padding: 20px; max-width: 900px; margin: 0 auto;">
+
+        <h1>Formulario de Registro</h1>
+        <hr>
+
+        <!-- Fila 1: Nombre, RUT, Fecha -->
+        <div style="display: inline-flex; width: 100%; margin-top: 15px;">
+            <div style="padding: 10px; width: 33%;">
+                <p>Nombre Completo</p>
+                <input type="text" id="nombre" placeholder="Nombre completo" style="width: 100%; padding: 5px;">
+                <p id="msg-nombre" style="color: red; font-size: 12px;"></p>
+            </div>
+            <div style="padding: 10px; width: 33%;">
+                <p>Rut</p>
+                <input type="text" id="rut" placeholder="12.345.678-9" maxlength="12" style="width: 100%; padding: 5px;">
+                <p id="msg-rut" style="color: red; font-size: 12px;"></p>
+            </div>
+            <div style="padding: 10px; width: 33%;">
+                <p>Fecha de Nacimiento</p>
+                <input type="text" id="fecha" placeholder="dd/MM/yyyy" maxlength="10" style="width: 100%; padding: 5px;">
+                <p id="msg-fecha" style="color: red; font-size: 12px;"></p>
+            </div>
+        </div>
+
+        <!-- Fila 2: CV, Email, Género -->
+        <div style="display: inline-flex; width: 100%; margin-top: 5px;">
+            <div style="padding: 10px; width: 33%;">
+                <p>Curriculum Vitae</p>
+                <input type="file" id="cv" accept=".pdf,.docx" style="width: 100%;">
+                <p id="msg-cv" style="color: red; font-size: 12px;"></p>
+            </div>
+            <div style="padding: 10px; width: 33%;">
+                <p>Email</p>
+                <input type="text" id="email" placeholder="Correo electrónico" style="width: 100%; padding: 5px;">
+                <p id="msg-email" style="color: red; font-size: 12px;"></p>
+            </div>
+            <div style="padding: 10px; width: 33%;">
+                <p>Género</p>
+                <select id="genero" style="width: 100%; padding: 5px;">
+                    <option value="">Seleccione...</option>
+                    <option value="masculino">Masculino</option>
+                    <option value="femenino">Femenino</option>
+                </select>
+                <p id="msg-genero" style="color: red; font-size: 12px;"></p>
+            </div>
+        </div>
+
+        <!-- Fila 3: Contraseña, Repetir Contraseña -->
+        <div style="display: inline-flex; width: 100%; margin-top: 5px;">
+            <div style="padding: 10px; width: 33%;">
+                <p>Contraseña</p>
+                <input type="password" id="pass" placeholder="********" maxlength="12" style="width: 100%; padding: 5px;">
+                <p id="msg-pass" style="color: red; font-size: 12px;"></p>
+            </div>
+            <div style="padding: 10px; width: 33%;">
+                <p>Repetir Contraseña</p>
+                <input type="password" id="pass2" placeholder="********" maxlength="12" style="width: 100%; padding: 5px;">
+                <p id="msg-pass2" style="color: red; font-size: 12px;"></p>
+            </div>
+            <div style="padding: 10px; width: 33%;"></div>
+        </div>
+
+        <!-- Botones -->
+        <div style="display: inline-flex; width: 100%; justify-content: flex-end; margin-top: 10px;">
+            <div style="padding: 10px;">
+                <button onclick="cancelarFormulario()" style="padding: 8px 20px; cursor: pointer;">Cancelar</button>
+            </div>
+            <div style="padding: 10px;">
+                <button onclick="enviarFormulario()" style="padding: 8px 20px; cursor: pointer; background-color: #4CAF50; color: white; border: none;">Guardar</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ---- Calcular digito verificador RUT ----
+        function calcularDV(rut) {
+            var suma = 0;
+            var multiplo = 2;
+            var digitos = rut.toString().split('').reverse();
+
+            for (var i = 0; i < digitos.length; i++) {
+                suma = suma + (parseInt(digitos[i]) * multiplo);
+                multiplo = multiplo === 7 ? 2 : multiplo + 1;
+            }
+
+            var resto = 11 - (suma % 11);
+            if (resto === 11) return '0';
+            if (resto === 10) return 'K';
+            return resto.toString();
+        }
+
+        // ---- Validar Nombre ----
+        function validarNombre() {
+            var nombre = document.getElementById('nombre').value;
+            var msg = document.getElementById('msg-nombre');
+
+            if (nombre === '') {
+                msg.innerHTML = 'El nombre es requerido.';
+                return false;
+            }
+
+            msg.innerHTML = '';
+            return true;
+        }
+
+        // ---- Validar RUT ----
+        function validarRUT() {
+            var rut = document.getElementById('rut').value;
+            var msg = document.getElementById('msg-rut');
+
+            if (rut === '') {
+                msg.innerHTML = 'El RUT es requerido.';
+                return false;
+            }
+
+            var rutLimpio = rut.replace(/\./g, '').replace(/-/g, '');
+            var cuerpo = rutLimpio.slice(0, -1);
+            var dv = rutLimpio.slice(-1).toUpperCase();
+
+            if (isNaN(cuerpo)) {
+                msg.innerHTML = 'RUT inválido.';
+                return false;
+            }
+
+            if (dv !== calcularDV(parseInt(cuerpo))) {
+                msg.innerHTML = 'El dígito verificador no es correcto.';
+                return false;
+            }
+
+            msg.innerHTML = '';
+            return true;
+        }
+
+        // ---- Validar Fecha ----
+        function validarFecha() {
+            var fecha = document.getElementById('fecha').value;
+            var msg = document.getElementById('msg-fecha');
+
+            if (fecha === '') {
+                msg.innerHTML = '';
+                return true;
+            }
+
+            var regex = /^(\d{2})\/(\d{2})\/(\d{4})$/;
+            var resultado = fecha.match(regex);
+
+            if (!resultado) {
+                msg.innerHTML = 'Formato inválido. Use dd/MM/yyyy.';
+                return false;
+            }
+
+            var dia = parseInt(resultado[1]);
+            var mes = parseInt(resultado[2]);
+            var anio = parseInt(resultado[3]);
+            var fechaObj = new Date(anio, mes - 1, dia);
+
+            if (fechaObj.getFullYear() !== anio || fechaObj.getMonth() !== mes - 1 || fechaObj.getDate() !== dia) {
+                msg.innerHTML = 'La fecha no existe.';
+                return false;
+            }
+
+            msg.innerHTML = '';
+            return true;
+        }
+
+        // ---- Validar CV ----
+        function validarCV() {
+            var cv = document.getElementById('cv');
+            var msg = document.getElementById('msg-cv');
+
+            if (cv.files.length === 0) {
+                msg.innerHTML = '';
+                return true;
+            }
+
+            var extensiones = ['.pdf', '.docx'];
+            var nombreArchivo = cv.files[0].name.toLowerCase();
+            var esValido = false;
+
+            for (var i = 0; i < extensiones.length; i++) {
+                if (nombreArchivo.endsWith(extensiones[i])) {
+                    esValido = true;
+                }
+            }
+
+            if (!esValido) {
+                msg.innerHTML = 'Solo se aceptan archivos .pdf o .docx.';
+                return false;
+            }
+
+            msg.innerHTML = '';
+            return true;
+        }
+
+        // ---- Validar Email ----
+        function validarEmail() {
+            var email = document.getElementById('email').value;
+            var msg = document.getElementById('msg-email');
+
+            if (email === '') {
+                msg.innerHTML = 'El email es requerido.';
+                return false;
+            }
+
+            var regex = /^[a-zA-Z0-9._+\-]+@[a-zA-Z0-9\-]+\.[a-zA-Z]{2,}(\.[a-zA-Z]{2,})*$/;
+
+            if (!regex.test(email)) {
+                msg.innerHTML = 'Formato inválido. Ej: usuario@servidor.com';
+                return false;
+            }
+
+            msg.innerHTML = '';
+            return true;
+        }
+
+        // ---- Validar Contraseña ----
+        function validarContrasena() {
+            var pass = document.getElementById('pass').value;
+            var msg = document.getElementById('msg-pass');
+
+            if (pass === '') {
+                msg.innerHTML = 'La contraseña es requerida.';
+                return false;
+            }
+
+            var errores = [];
+
+            if (pass.length < 8) errores.push('mínimo 8 caracteres');
+            if (pass.length > 12) errores.push('máximo 12 caracteres');
+            if (!/[A-Z]/.test(pass)) errores.push('1 mayúscula');
+            if (!/[a-z]/.test(pass)) errores.push('1 minúscula');
+            if (!/[0-9]/.test(pass)) errores.push('1 número');
+            if (!/[^A-Za-z0-9]/.test(pass)) errores.push('1 carácter especial');
+
+            if (errores.length > 0) {
+                msg.innerHTML = 'Faltan: ' + errores.join(', ') + '.';
+                return false;
+            }
+
+            msg.innerHTML = '';
+            return true;
+        }
+
+        // ---- Validar Repetir Contraseña ----
+        function validarRepetirContrasena() {
+            var pass = document.getElementById('pass').value;
+            var pass2 = document.getElementById('pass2').value;
+            var msg = document.getElementById('msg-pass2');
+
+            if (pass2 === '') {
+                msg.innerHTML = 'Debe repetir la contraseña.';
+                return false;
+            }
+
+            if (pass !== pass2) {
+                msg.innerHTML = 'Las contraseñas no coinciden.';
+                return false;
+            }
+
+            msg.innerHTML = '';
+            return true;
+        }
+
+        // ---- Cancelar: limpiar formulario ----
+        function cancelarFormulario() {
+            document.getElementById('nombre').value = '';
+            document.getElementById('rut').value = '';
+            document.getElementById('fecha').value = '';
+            document.getElementById('cv').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('genero').selectedIndex = 0;
+            document.getElementById('pass').value = '';
+            document.getElementById('pass2').value = '';
+
+            document.getElementById('msg-nombre').innerHTML = '';
+            document.getElementById('msg-rut').innerHTML = '';
+            document.getElementById('msg-fecha').innerHTML = '';
+            document.getElementById('msg-cv').innerHTML = '';
+            document.getElementById('msg-email').innerHTML = '';
+            document.getElementById('msg-genero').innerHTML = '';
+            document.getElementById('msg-pass').innerHTML = '';
+            document.getElementById('msg-pass2').innerHTML = '';
+        }
+
+        // ---- Enviar: validar todo y mostrar alert ----
+        function enviarFormulario() {
+            var nombre = validarNombre();
+            var rut = validarRUT();
+            var fecha = validarFecha();
+            var cv = validarCV();
+            var email = validarEmail();
+            var pass = validarContrasena();
+            var pass2 = validarRepetirContrasena();
+
+            if (nombre && rut && fecha && cv && email && pass && pass2) {
+                alert('¡Formulario enviado correctamente!');
+            }
+        }
+    </script>
+
+</body>
+</html>

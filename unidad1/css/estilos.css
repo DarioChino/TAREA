@@ -1,0 +1,41 @@
+/* estilos.css - CV simple*/
+/* Colores y estructura básica */
+:root {
+  --bg: #ffffff;
+  --texto: #1f2937;
+  --muted: #6b7280;
+  --borde: #e5e7eb;
+}
+
+/* Reset básico y tipografía */
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; color: var(--texto); background: var(--bg); }
+
+/* Encabezado: foto a la izquierda, texto a la derecha */
+.arriba { display: flex; align-items: center; padding: 20px; gap: 20px; background: #fff; border-bottom: 1px solid var(--borde); }
+.arriba .izq { min-width: 140px; display: flex; justify-content: center; }
+.foto-perfil { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; }
+.arriba .der { padding: 4px 0; }
+.nombre { font-size: 28px; margin: 0; }
+.titulo { color: var(--muted); margin-top: 6px; font-size: 16px; }
+
+/* Perfil (descripción corta) */
+.perfil { max-width: 1100px; margin: 8px auto; padding: 0 16px; line-height: 1.6; }
+
+/* Sección en dos columnas */
+.caja { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; padding: 20px; max-width: 1100px; margin: 0 auto; }
+
+/* Contenido de cada columna */
+.izq-col, .der-col { padding: 0 8px; }
+.caja h2 { font-size: 16px; margin: 12px 0; color: #333; }
+.caja ul { padding-left: 20px; margin: 0; }
+.caja li { margin: 6px 0; }
+
+/* Footer de contacto */
+.pie { text-align: center; padding: 16px; border-top: 1px solid var(--borde); margin-top: 20px; }
+
+/* Dispositivos pequeños: apilar en una sola columna */
+@media (max-width: 800px) {
+  .arriba { flex-direction: column; align-items: center; text-align: center; }
+  .caja { grid-template-columns: 1fr; padding: 12px; }
+}
